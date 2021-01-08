@@ -1,0 +1,256 @@
+---
+title: 'Heart Failure Prediction~HarvardX: PH125.9x(Choose your own)'
+author: "Hrithik Muskan"
+date: "08/01/2021"
+output:
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+***
+# Index:
+* **Introduction**
+  + *Dataset Description and Setup*  
+  + *Variables*  
+  + *Summary*  
+  + *Goal*  
+  + *Key Steps*  
+* **Methods**  
+  + *Data Cleaning*  
+  + *Data Exploration*  
+  + *Data Visualization*  
+* **Modeling Approach**  
+  + *Logistic Regression*  
+  + *KNN*  
+* **Conclusion**  
+* **References**
+\newpage
+
+## Dataset Description  
+Link:  <https://www.kaggle.com/andrewmvd/heart-failure-clinical-data>  
+
+## Introduction:
+In 2015, heart failure affected about 40 million people globally. Overall, around 2% of adults have heart failure and in those over the age of 65, this increases to 6–10%.Above 75 years old, rates are greater than 10%.
+
+Rates are predicted to increase.Increasing rates are mostly because of increasing lifespan, but also because of increased risk factors (hypertension, diabetes, dyslipidemia, and obesity) and improved survival rates from other types of cardiovascular disease (myocardial infarction, valvular disease, and arrhythmia).Heart failure is the leading cause of hospitalization in people older than 65.
+
+Cardiovascular diseases (CVDs) are the number 1 cause of death globally, taking an estimated 17.9 million lives each year, which accounts for 31% of all deaths worldwide.
+Heart failure is a common event caused by CVDs and this dataset contains 12 features that can be used to predict mortality by heart failure.
+
+Most cardiovascular diseases can be prevented by addressing behavioral risk factors such as tobacco use, unhealthy diet and obesity, physical inactivity and harmful use of alcohol using population-wide strategies.
+
+People with cardiovascular disease or who are at high cardiovascular risk (due to the presence of one or more risk factors such as hypertension, diabetes, hyperlipidaemia or already established disease) need early detection and management wherein a machine learning model can be of great help.  
+
+
+## Variables:  
+Let's see the variables along with the required setup.
+This is a Dataset from Davide Chicco, BMC Medical Informatics and Decision Making 20, 16 (2020)  
+Let's load the data and the required libraries.
+```{r}
+if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
+if(!require(ggplot2)) install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+if(!require(e1071)) install.packages("e1071", repos = "http://cran.us.r-project.org")
+
+library(tidyverse)
+library(caret)
+library(ggplot2)
+data <- read.csv("https://storage.googleapis.com/kagglesdsdata/datasets/727551/1263738/heart_failure_clinical_records_dataset.csv?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=gcp-kaggle-com%40kaggle-161607.iam.gserviceaccount.com%2F20210108%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20210108T050902Z&X-Goog-Expires=259199&X-Goog-SignedHeaders=host&X-Goog-Signature=9ec3e505d4e54c638b27a01e64c98c3b6557c6cce3c4f62c52f8b60d8e131ef18e3f82b49909453d406ed7e4efcb3093e81aead5e89b3438135f15f3e6bd69f18f1136b1153c88137e855f026f739b9feb372589e71014746013d4bb4c8686f3ae457f32523f2f885a3a1d287e4b5e0ffe6844b5c882953a3fa74d16047790470a1112dbd70924d7d1f1c3e193808cf1ad0f82c67f0c175ba6111b2eb1e79aea973be629e6971db649674610db8344f39a6ddd14a2a91b1203ca771fd55b5723deca63a811f387b462eb7a9c58e82dfd86a30326a93f549e9cb8c68ceea89457761c5fa80473901aeea074ccf4c7dcfabe6a5390ce0369cda4a1eb7594c2d16d")
+```
+
+## Summary:  
+Let's look up to the structure and summary of the data.
+```{r}
+glimpse(data)
+```
+\newpage
+## Variables:
+**age** - Age  
+  
+**anaemia** - Decrease of red blood cells or hemoglobin (boolean) (0:False, 1:True)  
+  
+**creatinine_phosphokinase** - Level of the CPK enzyme in the blood (mcg/L) 
+  
+**diabetes** - If the patient has diabetes (boolean) (0:False, 1:True)  
+  
+**ejection_fraction** - Percentage of blood leaving the heart at each contraction (percentage)  
+  
+**high_blood_pressure** - If the patient has hypertension (boolean) (0:False, 1:True)  
+  
+**platelets** - Platelets in the blood (kiloplatelets/mL)  
+  
+**serum_creatinine** - Level of serum creatinine in the blood (mg/dL)  
+  
+**serum_sodium** - Level of serum sodium in the blood (mEq/L)  
+  
+**sex** - Woman or Man (binary) (0: Woman, 1: Man)  
+  
+**smoking** - If the patient smokes or not (boolean) (0:False, 1:True)  
+  
+**time** - Follow-up period (days)  
+  
+**DEATH_EVENT** - If the patient deceased during the follow-up period (boolean)  
+
+\newpage
+
+## Goal:  
+
+Goal:
+We are going to predict mortality by heart failure based on the 12 features included in the data set. This can be used in assessing the severity of patients with cardiovascular diseases (CVDs) leading to Heart Failure.  
+
+## Key Steps:  
+
+* Key Steps
+  + Data Visualization
+  + Data Preprocessing
+  + Training Models
+  + Accuracy of Models
+  
+***
+
+## Methods:
+## Data Cleaning
+Let's see if there's any missing value in the data:
+
+```{r}
+any(is.na(data)) # returns True if there is any missing value in the entire dataframe
+```
+***
+## Data Exploration
+
+Let's see a bit of stats and summary of the data:
+```{r}
+class(data)
+```
+
+```{r}
+dim(data)
+```
+It has 299 rows and 13 columns.  
+
+***
+\newpage
+```{r}
+summary(data)
+```
+Here's a detailed view of data.
+
+***
+
+## Data Visualization
+
+Setup:
+
+```{r}
+# Changing datatype mutating some columns into factors for future usage
+features = c("anaemia", "diabetes", "high_blood_pressure", "sex", "smoking", "DEATH_EVENT")
+
+data_old <- data # let's store the original data.
+data <- data %>%
+  mutate_at(features, as.factor)
+```
+# Some Important Visualizations:`
+# Age vs Death
+```{r}
+p1 <- ggplot(data, aes(x = age, fill = DEATH_EVENT))+ geom_density(alpha = 0.5) +scale_fill_manual(values = c(4,6),name = "DEATH_EVENT",labels = c("0 (False)", "1 (True)")) + scale_x_continuous(breaks = seq(30, 100, 10)) +   labs(title = "Relationship between age and death")
+p1
+```
+Insights:
+
+1.Most of the patients are around 60-65 years old, and the number of patients decreased in a bell-shaped pattern around that age.
+2.With the younger the age, the more difficult it is to die; the probability density reverses after the age of just under 68.
+
+# Smoking vs Death
+```{r}
+p2<- ggplot(data, aes(x = smoking, fill = DEATH_EVENT)) +
+  geom_bar(stat = "count", position = "stack", show.legend = FALSE) +
+  scale_x_discrete(labels  = c("0 (False)", "1 (True)")) +
+  scale_fill_manual(values = c(3,7),
+                    name = "DEATH_EVENT",
+                    labels = c("0 (False)", "1 (True)")) +
+  labs(x = "Smoking") + labs(y ="Death Count")+theme_minimal(base_size = 12)+
+  geom_label(stat = "count", aes(label = ..count..), position = position_stack(vjust = 0.5),
+             size = 5, show.legend = TRUE)
+p2
+```
+
+# Serum Creatinine vs Death
+
+```{r}
+p3 <- ggplot(data, aes(x = serum_creatinine, fill = factor(DEATH_EVENT))) +
+  geom_density(alpha = 0.64) +
+  scale_fill_manual(values = c(4,8),
+                    name = "DEATH_EVENT",
+                    labels = c("0 (False)", "1 (True)"))+scale_x_log10()
+p3
+```
+***
+***
+\newpage
+
+
+# Data Preprocessing:
+Spliting data into train and test
+```{r}
+set.seed(1,sample.kind = "Rounding")
+test_index <- createDataPartition(y = data$DEATH_EVENT, times = 1, p = 0.5, list = FALSE)
+test <- data[test_index,]
+train <- data[-test_index,]
+head(train)
+```
+# Modeling Approach:
+
+# KNN
+
+K-nearest neighbors (kNN) estimates the conditional probabilities in a similar way to bin smoothing. However, kNN is easier to adapt to multiple dimensions.
+Using kNN, for any point  (x1,x2)  for which we want an estimate of  p(x1,x2) , we look for the k nearest points to  (x1,x2)  and take an average of the 0s and 1s associated with these points. We refer to the set of points used to compute the average as the neighborhood. Larger values of k result in smoother estimates, while smaller values of k result in more flexible and more wiggly estimates
+
+```{r}
+suppressWarnings(set.seed(1,sample.kind = "Rounding")) # use set.seed(1) for R versions prior R 3.5
+knn_fit <- knn3(DEATH_EVENT ~ ., data = test)
+x <- as.matrix(train[,0:12])
+y=train$DEATH_EVENT
+knn_fit <- knn3(x, y)
+knn_fit <- knn3(DEATH_EVENT~ ., data = train, k=5)
+y_hat_knn <- predict(knn_fit,test, type = "class")
+confusionMatrix(data = y_hat_knn, reference = test$DEATH_EVENT)
+
+```
+#### IT HAS AN ACCURACY OF 60% AND SENSITIVITY OF 0.82
+
+***
+
+# Logistic Regression
+
+Logistic regression analysis is a model used to predict and analyze the probability of occurrence of an event (in this case, DEATH_EVENT == 1). By estimating the parameters (intercept and regression coefficients) using the maximum likelihood method, it is possible to calculate the change in odds (the ratio of the probability that the event will happen to the probability that the event will not happen) when the values of the explanatory variables change.
+
+### Fitting the model
+```{r}
+lr <- glm(DEATH_EVENT ~ .,
+           family=binomial(logit), data=train)
+```
+
+### Prediction and Results
+```{r}
+pred <- as.factor(predict(lr, newdata=test, type="response") >= 0.5) %>%
+  fct_recode("0" = "FALSE", "1" = "TRUE")
+confusionMatrix(pred, test$DEATH_EVENT, positive = "1")
+```
+# Conclusion:
+We have the accuracy rate of both the models and particularly Logistic Regression has accuracy of 82% which provides us the model to account for heart failure prediction
+
+Thanks for reading!!
+
+\newpage
+
+# References:
+1. <https://en.wikipedia.org/wiki/Heart_failure>
+2. <https://www.world-heart-federation.org/cvd-roadmaps/whf-global-roadmaps/heart-failure/>
+
+
+
+
+
+  
